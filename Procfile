@@ -1,1 +1,1 @@
-web: ./nodebb start
+web: npm run build && node loader.js
