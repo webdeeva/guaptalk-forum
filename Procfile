@@ -1,1 +1,1 @@
-web: npm run build && node loader.js
+web: ./start.sh
