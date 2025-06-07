@@ -1,0 +1,15 @@
+{
+    "url": "http://localhost:4567",
+    "secret": "guaptalk-forum-secret-key",
+    "database": "redis",
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "password": "",
+        "database": 0
+    },
+    "admin:username": "admin",
+    "admin:password": "GuapTalk2024!",
+    "admin:password:confirm": "GuapTalk2024!",
+    "admin:email": "admin@guaptalk.com"
+}

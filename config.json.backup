@@ -1,0 +1,12 @@
+{
+    "url": "http://localhost:4567",
+    "secret": "guaptalk-secret-key-change-this-in-production",
+    "database": "redis",
+    "redis": {
+        "host": "127.0.0.1",
+        "port": "6379",
+        "password": "",
+        "database": "0"
+    },
+    "port": "4567"
+}
