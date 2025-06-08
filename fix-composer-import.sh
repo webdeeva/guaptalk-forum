@@ -1,3 +1,9 @@
+#!/bin/bash
+
+echo "=== Fixing composer import issue in NodeBB ==="
+
+# Update the topicThumbs.js file in the container
+docker exec guaptalk_app sh -c "cat > /usr/src/app/public/src/modules/topicThumbs.js << 'EOF'
 'use strict';
 
 define('topicThumbs', [
@@ -5,11 +11,11 @@ define('topicThumbs', [
 ], function (api, bootbox, alerts, uploader, Benchpress, translator, composer) {
 	const Thumbs = {};
 
-	Thumbs.get = id => api.get(`/topics/${id}/thumbs`, { thumbsOnly: 1 });
+	Thumbs.get = id => api.get(\`/topics/\${id}/thumbs\`, { thumbsOnly: 1 });
 
-	Thumbs.getByPid = pid => api.get(`/posts/${encodeURIComponent(pid)}`, {}).then(post => Thumbs.get(post.tid));
+	Thumbs.getByPid = pid => api.get(\`/posts/\${encodeURIComponent(pid)}\`, {}).then(post => Thumbs.get(post.tid));
 
-	Thumbs.delete = (id, path) => api.del(`/topics/${id}/thumbs`, {
+	Thumbs.delete = (id, path) => api.del(\`/topics/\${id}/thumbs\`, {
 		path: path,
 	});
 
@@ -23,7 +29,7 @@ define('topicThumbs', [
 		uploader.show({
 			title: '[[topic:composer.thumb-title]]',
 			method: 'put',
-			route: config.relative_path + `/api/v3/topics/${id}/thumbs`,
+			route: config.relative_path + \`/api/v3/topics/\${id}/thumbs\`,
 		}, function (url) {
 			resolve(url);
 		});
@@ -59,12 +65,12 @@ define('topicThumbs', [
 						backdrop: true,
 						buttons: {
 							add: {
-								label: '<i class="fa fa-plus"></i> [[modules:thumbs.modal.add]]',
+								label: '<i class=\"fa fa-plus\"></i> [[modules:thumbs.modal.add]]',
 								className: 'btn-success',
 								callback: () => {
 									Thumbs.upload(id).then(() => {
 										Thumbs.modal.open({ ...payload, modal });
-										composer.updateThumbCount(id, $(`[component="composer"][data-uuid="${id}"]`));
+										composer.updateThumbCount(id, \$(\`[component=\"composer\"][data-uuid=\"\${id}\"]\`));
 										resolve();
 									});
 									return false;
@@ -87,7 +93,7 @@ define('topicThumbs', [
 		const modalEl = payload.modal.get(0);
 		const { id: uuid } = payload;
 		modalEl.addEventListener('click', (ev) => {
-			if (ev.target.closest('button[data-action="remove"]')) {
+			if (ev.target.closest('button[data-action=\"remove\"]')) {
 				bootbox.confirm('[[modules:thumbs.modal.confirm-remove]]', (ok) => {
 					if (!ok) {
 						return;
@@ -95,11 +101,11 @@ define('topicThumbs', [
 
 					const id = ev.target.closest('[data-id]').getAttribute('data-id');
 					const path = ev.target.closest('[data-path]').getAttribute('data-path');
-					api.del(`/topics/${id}/thumbs`, {
+					api.del(\`/topics/\${id}/thumbs\`, {
 						path: path,
 					}).then(() => {
 						Thumbs.modal.open(payload);
-						composer.updateThumbCount(uuid, $(`[component="composer"][data-uuid="${uuid}"]`));
+						composer.updateThumbCount(uuid, \$(\`[component=\"composer\"][data-uuid=\"\${uuid}\"]\`));
 					}).catch(alerts.error);
 				});
 			}
@@ -121,11 +127,33 @@ define('topicThumbs', [
 		Array.from(items).forEach((el, order) => {
 			const id = el.getAttribute('data-id');
 			let path = el.getAttribute('data-path');
-			path = path.replace(new RegExp(`^${config.upload_url}`), '');
+			path = path.replace(new RegExp(\`^\${config.upload_url}\`), '');
 
-			api.put(`/topics/${id}/thumbs/order`, { path, order }).catch(alerts.error);
+			api.put(\`/topics/\${id}/thumbs/order\`, { path, order }).catch(alerts.error);
 		});
 	};
 
 	return Thumbs;
 });
+EOF"
+
+echo "File updated successfully."
+
+echo ""
+echo "Running build..."
+docker exec guaptalk_app ./nodebb build
+
+echo ""
+echo "Restarting container..."
+docker restart guaptalk_app
+
+echo ""
+echo "Waiting for startup..."
+sleep 20
+
+echo ""
+echo "Checking status..."
+docker exec guaptalk_app curl -I http://localhost:4567
+
+echo ""
+echo "=== Fix complete ==="
