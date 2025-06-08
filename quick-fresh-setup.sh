@@ -68,9 +68,34 @@ cd guaptalk-forum
 SERVER_IP=$(curl -s http://checkip.amazonaws.com)
 print_status "Server IP: $SERVER_IP"
 
-# 8. Update config.json with correct IP
-print_status "Updating config.json..."
-sed -i "s/\"url\": \".*\"/\"url\": \"http:\/\/$SERVER_IP:4567\"/" config.json
+# 8. Check if config.json exists, if not create it
+print_status "Setting up config.json..."
+if [ ! -f config.json ]; then
+    print_status "Creating config.json from template..."
+    cat > config.json << EOF
+{
+    "url": "http://$SERVER_IP:4567",
+    "secret": "$(openssl rand -hex 32)",
+    "database": "mongo",
+    "mongo": {
+        "host": "guaptalk_db",
+        "port": 27017,
+        "username": "nodebb",
+        "password": "nodebb",
+        "database": "nodebb"
+    },
+    "redis": {
+        "host": "guaptalk_redis",
+        "port": 6379,
+        "database": 0
+    },
+    "port": 4567
+}
+EOF
+else
+    print_status "Updating existing config.json..."
+    sed -i "s/\"url\": \".*\"/\"url\": \"http:\/\/$SERVER_IP:4567\"/" config.json
+fi
 
 # 9. Create necessary directories
 print_status "Creating directories..."
