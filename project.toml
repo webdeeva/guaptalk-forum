@@ -1,0 +1,14 @@
+[[build.env]]
+name = "BP_NODE_VERSION"
+value = "18.*"
+
+[[build.env]]
+name = "BP_NODE_RUN_SCRIPTS"
+value = "false"
+
+[build]
+exclude = [
+  ".git",
+  "node_modules",
+  ".docker"
+]
