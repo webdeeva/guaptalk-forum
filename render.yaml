@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: guaptalk-forum
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: url
+        value: https://guaptalk-forum.onrender.com
+      - key: port
+        value: 10000
+      - key: secret
+        value: kEVS950v/PKx0X8yelKhfAPWASxM18flVSnDy80tF58=
+      - key: redis__host
+        fromService:
+          name: redis
+          type: pserv
+          property: host
+      - key: redis__port
+        fromService:
+          name: redis
+          type: pserv
+          property: port
+      - key: redis__database
+        value: 0
+
+  - type: pserv
+    name: redis
+    runtime: docker
+    repo: https://github.com/render-examples/redis
+    branch: master
+    dockerCommand: redis-server --appendonly yes
+    disk:
+      name: redis-data
+      mountPath: /data
