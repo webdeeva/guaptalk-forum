@@ -1,0 +1,35 @@
+name: guaptalk-forum
+region: nyc
+services:
+  - name: nodebb
+    github:
+      repo: webdeeva/guaptalk-forum
+      branch: master
+      deploy_on_push: true
+    build_command: npm install && npm run build
+    run_command: npm start
+    http_port: 4567
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: url
+        value: ${APP_URL}
+      - key: port
+        value: "4567"
+      - key: secret
+        value: kEVS950v/PKx0X8yelKhfAPWASxM18flVSnDy80tF58=
+      - key: redis__host
+        value: ${redis.HOSTNAME}
+      - key: redis__port
+        value: ${redis.PORT}
+      - key: redis__password
+        value: ${redis.PASSWORD}
+      - key: redis__database
+        value: "0"
+
+databases:
+  - name: redis
+    engine: REDIS
+    production: false
