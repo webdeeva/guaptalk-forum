@@ -35,7 +35,7 @@ mkdir -p .docker/config
 echo "6. Creating production configuration..."
 cat > config.json << 'EOF'
 {
-    "url": "http://YOURDOMAIN.COM",
+    "url": "https://guaptalk.xyz",
     "secret": "kEVS950v/PKx0X8yelKhfAPWASxM18flVSnDy80tF58=",
     "database": "redis",
     "port": "4567",
