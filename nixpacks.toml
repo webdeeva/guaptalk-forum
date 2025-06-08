@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_18"]
 cmd = "npm ci --production"
 
 [phases.build]
-cmd = "npm run build"
+cmd = "./nodebb build"
 
 [start]
-cmd = "node loader.js"
+cmd = "./nodebb start"
