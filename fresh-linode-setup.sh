@@ -34,7 +34,32 @@ apt update && apt upgrade -y
 
 # 2. Install required packages
 print_status "Installing required packages..."
-apt install -y docker.io docker-compose git nginx certbot python3-certbot-nginx ufw
+# Remove conflicting packages first
+apt remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+
+# Install Docker from official repository
+print_status "Installing Docker from official repository..."
+apt update
+apt install -y ca-certificates curl gnupg lsb-release
+
+# Add Docker's official GPG key
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Set up the repository
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Install other required packages
+apt install -y git nginx certbot python3-certbot-nginx ufw
+
+# Create docker-compose alias for compatibility
+ln -sf /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose 2>/dev/null || true
 
 # 3. Enable and start Docker
 print_status "Enabling Docker..."
